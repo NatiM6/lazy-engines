@@ -1,6 +1,6 @@
-A small create add-on that pushes steam engines a bit forward into the end-game.
+A small create add-on that makes steam engines very configurable.
 
-# What does it do?
-- Passive heaters no longer work
-- Super-heated burners provide twice the heat
-- Doubles the max steam engine size
+Adds config options for heat levels from passive sources and burners as well as the required size of the engine.
+
+# Versions
+Fabric version might be a little bit behind since it is being ported separately.
