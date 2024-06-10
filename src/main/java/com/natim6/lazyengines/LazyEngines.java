@@ -1,9 +1,11 @@
 package com.natim6.lazyengines;
 
-import net.minecraftforge.fml.common.Mod;
+import net.fabricmc.api.ModInitializer;
 
-@Mod("lazyengines")
-public class LazyEngines
-{
-    public LazyEngines() {}
+public class LazyEngines implements ModInitializer {
+
+    @Override
+    public void onInitialize() {
+
+    }
 }

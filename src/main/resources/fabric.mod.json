@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "lazyengines",
+	"version": "${version}",
+	"name": "Create: Lazy Engines",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"NatiM6"
+	],
+	"license": "CC0-1.0",
+	"icon": "lazyengines-logo.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+          "com.natim6.lazyengines.LazyEngines"
+		]
+	},
+	"mixins": [
+		"lazyengines.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

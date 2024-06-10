@@ -74,7 +74,7 @@ public class BoilerDataMixin {
     }
 
     @Shadow
-    public float waterSupply;
+    public double waterSupply;
     @Final
     @Shadow
     private static int waterSupplyPerLevel;
