@@ -3,11 +3,15 @@
 	"id": "lazyengines",
 	"version": "${version}",
 	"name": "Create: Lazy Engines",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Steam Engines need a kick to start working, but their capacity is massively increased",
 	"authors": [
 		"NatiM6"
 	],
-	"license": "CC0-1.0",
+	"contact": {
+		"homepage": "https://github.com/NatiM6/lazy-engines",
+		"sources": "https://github.com/NatiM6/lazy-engines/issues"
+	},
+	"license": "MIT",
 	"icon": "lazyengines-logo.png",
 	"environment": "*",
 	"entrypoints": {
@@ -22,9 +26,7 @@
 		"fabricloader": ">=0.15.11",
 		"minecraft": "~1.20.1",
 		"java": ">=17",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
+		"fabric-api": "*",
+		"create": "*"
 	}
 }
