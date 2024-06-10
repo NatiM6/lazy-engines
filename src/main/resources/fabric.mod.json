@@ -8,8 +8,8 @@
 		"NatiM6"
 	],
 	"contact": {
-		"homepage": "https://github.com/NatiM6/lazy-engines",
-		"sources": "https://github.com/NatiM6/lazy-engines/issues"
+		"sources": "https://github.com/NatiM6/lazy-engines",
+		"issues": "https://github.com/NatiM6/lazy-engines/issues"
 	},
 	"license": "MIT",
 	"icon": "lazyengines-logo.png",
