@@ -1,5 +1,6 @@
 package com.natim6.lazyengines.mixin;
 
+import com.natim6.lazyengines.Config;
 import com.simibubi.create.content.fluids.tank.BoilerData;
 import com.simibubi.create.foundation.utility.Components;
 import com.simibubi.create.foundation.utility.Lang;
@@ -21,17 +22,17 @@ public class BoilerDataMixin {
         int forBoilerSize = getMaxHeatLevelForBoilerSize(boilerSize);
         int forWaterSupply = getMaxHeatLevelForWaterSupply();
         int actualHeat = Math.min(activeHeat, Math.min(forWaterSupply, forBoilerSize));
-        return Math.floorDiv(actualHeat, 2);
+        return Math.floorDiv(actualHeat * 18, Config.SEETHING_BURNER.get()*9);
     }
 
     @Inject(method = "getMaxHeatLevelForBoilerSize", at = @At("HEAD"), cancellable = true)
     private void getMaxHeatLevelForBoilerSizeMixin(int boilerSize, CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(Math.min(36, boilerSize / 4));
+        cir.setReturnValue(Math.min(Config.SEETHING_BURNER.get()*9, boilerSize / Config.TANKS_PER_HEAT.get()));
     }
 
     @Inject(method = "getMaxHeatLevelForWaterSupply", at = @At("HEAD"), cancellable = true)
     private void getMaxHeatLevelForWaterSupplyMixin(CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(Math.min(36, Mth.ceil(waterSupply) / waterSupplyPerLevel));
+        cir.setReturnValue(Math.min(Config.SEETHING_BURNER.get()*9, Mth.ceil(waterSupply) / waterSupplyPerLevel));
     }
 
     @Inject(method = "getHeatLevelTextComponent", at = @At("HEAD"), cancellable = true)
@@ -40,7 +41,7 @@ public class BoilerDataMixin {
 
         cir.setReturnValue(isPassive() ? Lang.translateDirect("boiler.passive")
                 : (boilerLevel == 0 ? Lang.translateDirect("boiler.idle")
-                : boilerLevel == 36 ? Lang.translateDirect("boiler.max_lvl")
+                : boilerLevel == Config.SEETHING_BURNER.get()*9 ? Lang.translateDirect("boiler.max_lvl")
                 : Lang.translateDirect("boiler.lvl", String.valueOf(boilerLevel))));
     }
 
@@ -51,7 +52,7 @@ public class BoilerDataMixin {
                 .append(bars(minValue > 0 ? 1 : 0, ChatFormatting.GREEN))
                 .append(bars(Math.max(0, level - minValue), ChatFormatting.DARK_GREEN))
                 .append(bars(Math.max(0, maxValue - level), ChatFormatting.DARK_RED))
-                .append(bars(Math.max(0, Math.min(36 - maxValue, ((maxValue / 5 + 1) * 5) - maxValue)),
+                .append(bars(Math.max(0, Math.min(Config.SEETHING_BURNER.get()*9 - maxValue, ((maxValue / 5 + 1) * 5) - maxValue)),
                         ChatFormatting.DARK_GRAY)));
 
     }

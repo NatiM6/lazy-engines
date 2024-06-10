@@ -15,10 +15,12 @@ base {
 repositories {
 	maven { url = 'https://maven.parchmentmc.org' } //Parchment
 	maven { url = "https://mvn.devos.one/snapshots/" } //Create
+	maven { url = "https://mvn.devos.one/releases/" } //Porting Lib?
 	maven { url = "https://maven.tterrag.com/" } //Flywheel
 	maven { url = "https://jitpack.io" } //Mixin Extras - no clue what that is
 	maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } //Reach Attr
 	maven { url = "https://cursemaven.com" } //Forge API port
+	maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } //Forge Config API Port
 }
 
 dependencies {
@@ -31,7 +33,8 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation("com.simibubi.create:create-fabric-${minecraft_version}:${create_version}+mc${minecraft_version}")
+	modImplementation "com.simibubi.create:create-fabric-${minecraft_version}:${create_version}+mc${minecraft_version}"
+	modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:8.0.0"
 }
 
 processResources {
