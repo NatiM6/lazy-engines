@@ -1,0 +1,6 @@
+{
+  "config.lazyengines.passive_source_mode": "BRBR",
+  "config.lazyengines.passive_source_mode.disabled": "Disabled",
+  "config.lazyengines.passive_source_mode.passive": "Passive",
+  "config.lazyengines.passive_source_mode.active": "Active"
+}
