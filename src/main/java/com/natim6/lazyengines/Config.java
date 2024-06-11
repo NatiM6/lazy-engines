@@ -22,6 +22,9 @@ public class Config {
     public static final ForgeConfigSpec.IntValue TANKS_PER_HEAT = BUILDER
             .comment("Amount of tanks required to support each level of heat")
             .defineInRange("tanks_per_heat_level", 4, 1, Integer.MAX_VALUE);
+    public static final ForgeConfigSpec.DoubleValue PASSIVE_EFFICIENCY = BUILDER
+            .comment("Engine efficiency when passive")
+            .defineInRange("passive_efficiency", 1/8., 0, 1);
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
 }

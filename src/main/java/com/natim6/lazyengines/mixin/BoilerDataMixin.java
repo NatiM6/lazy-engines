@@ -57,6 +57,21 @@ public class BoilerDataMixin {
 
     }
 
+    @Inject(method = "getEngineEfficiency", at = @At("HEAD"), cancellable = true)
+    public void getEngineEfficiencyMixin(int boilerSize, CallbackInfoReturnable<Float> cir) {
+        if (isPassive(boilerSize)) {
+            cir.setReturnValue(Config.PASSIVE_EFFICIENCY.get().floatValue() / attachedEngines);
+            return;
+        }
+        if (activeHeat == 0) {
+            cir.setReturnValue(0.f);
+            return;
+        }
+        int actualHeat = getActualHeat(boilerSize);
+        cir.setReturnValue(attachedEngines <= actualHeat ? 1 : (float) actualHeat / attachedEngines);
+        return; //Necessary for the function to stop the rest
+    }
+
     @Shadow
     public int getMaxHeatLevelForWaterSupply() {
         return 0;
@@ -70,23 +85,24 @@ public class BoilerDataMixin {
         return true;
     }
     @Shadow
+    public boolean isPassive(int boilerSize) {
+        return true;
+    }
+    @Shadow
     private MutableComponent bars(int level, ChatFormatting format) {
         return Components.empty();
     }
+    @Shadow
+    private int getActualHeat(int boilerSize) {
+        return 0;
+    }
 
-    @Shadow
-    public float waterSupply;
-    @Final
-    @Shadow
-    private static int waterSupplyPerLevel;
-    @Shadow
-    public int activeHeat;
-    @Shadow
-    private int maxHeatForWater;
-    @Shadow
-    private int maxHeatForSize;
-    @Shadow
-    private int minValue;
-    @Shadow
-    private int maxValue;
+    @Shadow public float waterSupply;
+    @Final @Shadow private static int waterSupplyPerLevel;
+    @Shadow public int activeHeat;
+    @Shadow private int maxHeatForWater;
+    @Shadow private int maxHeatForSize;
+    @Shadow private int minValue;
+    @Shadow private int maxValue;
+    @Shadow public int attachedEngines;
 }
