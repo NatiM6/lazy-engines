@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
 		"BoilerDataMixin",
-		"BoilerHeatersMixin"
+		"BoilerHeatersMixin",
+		"PoweredShaftBlockEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
