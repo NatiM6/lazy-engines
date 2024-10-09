@@ -21,15 +21,15 @@ public class PoweredShaftBlockEntityMixin extends GeneratingKineticBlockEntity {
     @Inject(method = "getGeneratedSpeed", at = @At("HEAD"), cancellable = true)
     public void getGeneratedSpeedMixin(CallbackInfoReturnable<Float> cir) {
         cir.setReturnValue(getCombinedCapacity() > 0 ? movementDirection * Config.ENGINE_SPEED.get() / 4.f * getSpeedModifier() : 0.f);
-        return;
+        cir.cancel(); // Thanks LiukRast for the correction!
     }
 
     @Inject(method = "calculateAddedStressCapacity", at = @At("HEAD"), cancellable = true)
     public void calculateAddedStressCapacityMixin(CallbackInfoReturnable<Float> cir) {
-        float capacity = getCombinedCapacity() / getSpeedModifier() * 64 / Config.ENGINE_SPEED.get();
+        float capacity = getCombinedCapacity() / getSpeedModifier() * 64 / Config.ENGINE_SPEED.get() * Config.ENGINE_POWER.get().floatValue();
         this.lastCapacityProvided = capacity;
         cir.setReturnValue(capacity);
-        return;
+        cir.cancel();
     }
 
     @Shadow
