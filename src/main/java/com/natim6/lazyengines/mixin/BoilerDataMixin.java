@@ -5,22 +5,20 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.fluids.tank.BoilerData;
 import com.simibubi.create.content.kinetics.BlockStressValues;
 import com.simibubi.create.foundation.utility.Components;
-import com.simibubi.create.foundation.utility.Lang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.throwables.MixinException;
 
 import java.util.List;
 
 @Mixin(value = BoilerData.class, remap = false)
 public class BoilerDataMixin {
-    @Shadow public int attachedWhistles;
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/fluids/tank/BoilerData;getActualHeat(I)I"))
     private int lazy_engines$getNotActualHeatValue(BoilerData instance, int boilerSize) {
@@ -81,38 +79,28 @@ public class BoilerDataMixin {
     }
 
     @Shadow
-    public float getEngineEfficiency(int boilerSize) { return 0; }
+    public float getEngineEfficiency(int boilerSize) {
+        throw new MixinException("Mixin application failed");
+    }
     @Shadow
     public int getMaxHeatLevelForWaterSupply() {
-        return 0;
+        throw new MixinException("Mixin application failed");
     }
     @Shadow
     public int getMaxHeatLevelForBoilerSize(int boilerSize) {
-        return 0;
-    }
-    @Shadow
-    public boolean isPassive() {
-        return true;
+        throw new MixinException("Mixin application failed");
     }
     @Shadow
     public boolean isPassive(int boilerSize) {
-        return true;
-    }
-    @Shadow
-    private MutableComponent bars(int level, ChatFormatting format) {
-        return Components.empty();
+        throw new MixinException("Mixin application failed");
     }
     @Shadow
     private int getActualHeat(int boilerSize) {
-        return 0;
+        throw new MixinException("Mixin application failed");
     }
 
-    @Shadow public float waterSupply;
-    @Final @Shadow private static int waterSupplyPerLevel;
     @Shadow public int activeHeat;
     @Shadow private int maxHeatForWater;
     @Shadow private int maxHeatForSize;
-    @Shadow private int minValue;
-    @Shadow private int maxValue;
     @Shadow public int attachedEngines;
 }
