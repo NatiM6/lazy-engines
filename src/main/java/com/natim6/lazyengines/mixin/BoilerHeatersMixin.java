@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = BoilerHeaters.class, remap = false)
 public class BoilerHeatersMixin {
     @Inject(method = "registerDefaults", at = @At("HEAD"), cancellable = true)
-    private static void registerDefaultsMixin(CallbackInfo ci) {
+    private static void lazy_engines$registerDefaultsMixin(CallbackInfo ci) {
         registerHeater(com.simibubi.create.AllBlocks.BLAZE_BURNER.get(), (level, pos, state) -> {
             HeatLevel value = state.getValue(BlazeBurnerBlock.HEAT_LEVEL);
             if (value == HeatLevel.SEETHING) return Config.SEETHING_BURNER.get();
