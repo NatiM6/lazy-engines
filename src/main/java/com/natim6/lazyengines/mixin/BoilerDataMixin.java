@@ -13,10 +13,7 @@ import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
@@ -33,39 +30,31 @@ public class BoilerDataMixin {
         return Math.floorDiv(actualHeat * 18, Config.getMaxLevel()); // It needs to equal 18 in the code
     }
 
-    @Inject(method = "getMaxHeatLevelForBoilerSize", at = @At("HEAD"), cancellable = true)
-    private void lazy_engines$getMaxHeatLevelForBoilerSizeMixin(int boilerSize, CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(Math.min(Config.getMaxLevel(), boilerSize / Config.TANKS_PER_HEAT.get()));
-        cir.cancel();
+    /**
+     * Instead of rewriting the method, we modify the constant.
+     * This allows other mods to have more compatibility with yours!
+     * */
+    @ModifyConstant(method = "getMaxHeatLevelForBoilerSize", constant = @Constant(intValue = 4))
+    private int lazy_engines$getMaxHeatLevelForBoilerSize(int constant) {
+        return Config.TANKS_PER_HEAT.get();
     }
 
-    @Inject(method = "getMaxHeatLevelForWaterSupply", at = @At("HEAD"), cancellable = true)
-    private void lazy_engines$getMaxHeatLevelForWaterSupplyMixin(CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(Math.min(Config.getMaxLevel(), Mth.ceil(waterSupply) / Config.WATER_REQUIRED.get()));
-        cir.cancel();
+    /**
+     * We can inject in all the methods that need a replacement for that {@code 18} value!
+     * */
+    @ModifyConstant(method = {"getMaxHeatLevelForWaterSupply", "getHeatLevelTextComponent"}, constant = @Constant(intValue = 18))
+    private int lazy_engines$replace18Constant(int constant) {
+        return Config.getMaxLevel();
     }
 
-    @Inject(method = "getHeatLevelTextComponent", at = @At("HEAD"), cancellable = true)
-    public void lazy_engines$getHeatLevelTextComponentMixin(CallbackInfoReturnable<MutableComponent> cir) {
-        int boilerLevel = Math.min(activeHeat, Math.min(maxHeatForWater, maxHeatForSize));
-
-        cir.setReturnValue(isPassive() ? Lang.translateDirect("boiler.passive")
-                : (boilerLevel == 0 ? Lang.translateDirect("boiler.idle")
-                : boilerLevel == Config.getMaxLevel() ? Lang.translateDirect("boiler.max_lvl")
-                : Lang.translateDirect("boiler.lvl", String.valueOf(boilerLevel))));
-        cir.cancel();
+    @ModifyConstant(method = "getMaxHeatLevelForWaterSupply", constant = @Constant(intValue = 10))
+    private int lazy_engines$replaceWaterSupplyPerLevel(int constant) {
+        return Config.WATER_REQUIRED.get();
     }
 
-    @Inject(method = "barComponent", at = @At("HEAD"), cancellable = true)
-    private void lazy_engines$barComponentMixin(int level, CallbackInfoReturnable<MutableComponent> cir) {
-        cir.setReturnValue(Components.empty()
-                .append(bars(Math.max(0, minValue - 1), ChatFormatting.DARK_GREEN))
-                .append(bars(minValue > 0 ? 1 : 0, ChatFormatting.GREEN))
-                .append(bars(Math.max(0, level - minValue), ChatFormatting.DARK_GREEN))
-                .append(bars(Math.max(0, maxValue - level), ChatFormatting.DARK_RED))
-                .append(bars(Math.max(0, Math.min(Config.SEETHING_BURNER.get()*9 - maxValue, ((maxValue / 5 + 1) * 5) - maxValue)),
-                        ChatFormatting.DARK_GRAY)));
-        cir.cancel();
+    @ModifyConstant(method = "barComponent", constant = @Constant(intValue = 18))
+    private int lazy_engines$barComponent(int level) {
+        return Config.SEETHING_BURNER.get()*9;
     }
 
     @Inject(method = "getEngineEfficiency", at = @At("HEAD"), cancellable = true)
