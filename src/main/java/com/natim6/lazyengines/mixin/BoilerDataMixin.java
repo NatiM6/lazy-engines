@@ -37,10 +37,12 @@ public class BoilerDataMixin {
         if (isPassive(boilerSize)) {
             cir.setReturnValue((float)(Config.PASSIVE_EFFICIENCY.get() / attachedPower));
             cir.cancel(); // Thanks LiukRast for the correction!
+            return; // I have no words - this return was here to stop the mixin itself from continuing.
         }
         if (activeHeat == 0) {
             cir.setReturnValue(0.f);
             cir.cancel();
+            return;
         }
         double actualHeat = getActualHeat(boilerSize);
         cir.setReturnValue(attachedPower <= actualHeat ? 1 : (float) (actualHeat / attachedPower));
