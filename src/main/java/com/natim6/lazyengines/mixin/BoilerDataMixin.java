@@ -59,14 +59,6 @@ public class BoilerDataMixin {
         throw new MixinException("Mixin application failed");
     }
     @Shadow
-    public int getMaxHeatLevelForWaterSupply() {
-        throw new MixinException("Mixin application failed");
-    }
-    @Shadow
-    public int getMaxHeatLevelForBoilerSize(int boilerSize) {
-        throw new MixinException("Mixin application failed");
-    }
-    @Shadow
     public boolean isPassive(int boilerSize) {
         throw new MixinException("Mixin application failed");
     }
