@@ -4,11 +4,7 @@ import com.natim6.lazyengines.Config;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.fluids.tank.BoilerData;
 import com.simibubi.create.content.kinetics.BlockStressValues;
-import com.simibubi.create.foundation.utility.Components;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
@@ -28,19 +24,12 @@ public class BoilerDataMixin {
         return Math.floorDiv(actualHeat * 18, Config.getMaxLevel()); // It needs to equal 18 in the code
     }
 
-    /**
-     * Instead of rewriting the method, we modify the constant.
-     * This allows other mods to have more compatibility with yours!
-     * */
     @ModifyConstant(method = "getMaxHeatLevelForBoilerSize", constant = @Constant(intValue = 4))
     private int lazy_engines$getMaxHeatLevelForBoilerSize(int constant) {
         return Config.TANKS_PER_HEAT.get();
     }
 
-    /**
-     * We can inject in all the methods that need a replacement for that {@code 18} value!
-     * */
-    @ModifyConstant(method = {"getMaxHeatLevelForWaterSupply", "getHeatLevelTextComponent"}, constant = @Constant(intValue = 18))
+    @ModifyConstant(method = {"getMaxHeatLevelForWaterSupply", "getHeatLevelTextComponent", "barComponent"}, constant = @Constant(intValue = 18))
     private int lazy_engines$replace18Constant(int constant) {
         return Config.getMaxLevel();
     }
@@ -50,15 +39,11 @@ public class BoilerDataMixin {
         return Config.WATER_REQUIRED.get();
     }
 
-    @ModifyConstant(method = "barComponent", constant = @Constant(intValue = 18))
-    private int lazy_engines$barComponent(int level) {
-        return Config.SEETHING_BURNER.get()*9;
-    }
-
     @Inject(method = "getEngineEfficiency", at = @At("HEAD"), cancellable = true)
     public void lazy_engines$getEngineEfficiencyMixin(int boilerSize, CallbackInfoReturnable<Float> cir) {
+        double attachedPower = attachedEngines * Config.ENGINE_POWER.get();
         if (isPassive(boilerSize)) {
-            cir.setReturnValue(Config.PASSIVE_EFFICIENCY.get().floatValue() / attachedEngines);
+            cir.setReturnValue((float)(Config.PASSIVE_EFFICIENCY.get() / attachedPower));
             cir.cancel(); // Thanks LiukRast for the correction!
         }
         if (activeHeat == 0) {
@@ -66,7 +51,6 @@ public class BoilerDataMixin {
             cir.cancel();
         }
         double actualHeat = getActualHeat(boilerSize);
-        double attachedPower = attachedEngines * Config.ENGINE_POWER.get();
         cir.setReturnValue(attachedPower <= actualHeat ? 1 : (float) (actualHeat / attachedPower));
         cir.cancel();
     }
