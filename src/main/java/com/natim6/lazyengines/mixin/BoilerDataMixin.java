@@ -16,20 +16,12 @@ import java.util.List;
 @Mixin(value = BoilerData.class, remap = false)
 public class BoilerDataMixin {
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/fluids/tank/BoilerData;getActualHeat(I)I"))
-    private int lazy_engines$getNotActualHeatValue(BoilerData instance, int boilerSize) {
-        int forBoilerSize = getMaxHeatLevelForBoilerSize(boilerSize);
-        int forWaterSupply = getMaxHeatLevelForWaterSupply();
-        int actualHeat = Math.min(activeHeat, Math.min(forWaterSupply, forBoilerSize));
-        return Math.floorDiv(actualHeat * 18, Config.getMaxLevel()); // It needs to equal 18 in the code
-    }
-
     @ModifyConstant(method = "getMaxHeatLevelForBoilerSize", constant = @Constant(intValue = 4))
     private int lazy_engines$getMaxHeatLevelForBoilerSize(int constant) {
         return Config.TANKS_PER_HEAT.get();
     }
 
-    @ModifyConstant(method = {"getMaxHeatLevelForWaterSupply", "getHeatLevelTextComponent", "barComponent"}, constant = @Constant(intValue = 18))
+    @ModifyConstant(method = {"getMaxHeatLevelForWaterSupply", "getHeatLevelTextComponent", "barComponent", "tick"}, constant = @Constant(intValue = 18))
     private int lazy_engines$replace18Constant(int constant) {
         return Config.getMaxLevel();
     }
