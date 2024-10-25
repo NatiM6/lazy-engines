@@ -1,108 +1,76 @@
 package com.natim6.lazyengines.mixin;
 
 import com.natim6.lazyengines.Config;
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.fluids.tank.BoilerData;
-import com.simibubi.create.foundation.utility.Components;
-import com.simibubi.create.foundation.utility.Lang;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.Mth;
-import org.spongepowered.asm.mixin.Final;
+import com.simibubi.create.content.kinetics.BlockStressValues;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.throwables.MixinException;
+
+import java.util.List;
 
 @Mixin(value = BoilerData.class, remap = false)
 public class BoilerDataMixin {
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/fluids/tank/BoilerData;getActualHeat(I)I"))
-    private int getNotActualHeatValue(BoilerData instance, int boilerSize) {
-        int forBoilerSize = getMaxHeatLevelForBoilerSize(boilerSize);
-        int forWaterSupply = getMaxHeatLevelForWaterSupply();
-        int actualHeat = Math.min(activeHeat, Math.min(forWaterSupply, forBoilerSize));
-        return Math.floorDiv(actualHeat * 18, Config.SEETHING_BURNER.get()*9);
+
+    @ModifyConstant(method = "getMaxHeatLevelForBoilerSize", constant = @Constant(intValue = 4))
+    private int lazy_engines$getMaxHeatLevelForBoilerSize(int constant) {
+        return Config.TANKS_PER_HEAT.get();
     }
 
-    @Inject(method = "getMaxHeatLevelForBoilerSize", at = @At("HEAD"), cancellable = true)
-    private void getMaxHeatLevelForBoilerSizeMixin(int boilerSize, CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(Math.min(Config.SEETHING_BURNER.get()*9, boilerSize / Config.TANKS_PER_HEAT.get()));
+    @ModifyConstant(method = {"getMaxHeatLevelForWaterSupply", "getHeatLevelTextComponent", "barComponent", "tick"}, constant = @Constant(intValue = 18))
+    private int lazy_engines$replace18Constant(int constant) {
+        return Config.getMaxLevel();
     }
 
-    @Inject(method = "getMaxHeatLevelForWaterSupply", at = @At("HEAD"), cancellable = true)
-    private void getMaxHeatLevelForWaterSupplyMixin(CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(Math.min(Config.SEETHING_BURNER.get()*9, Mth.ceil(waterSupply) / waterSupplyPerLevel));
-    }
-
-    @Inject(method = "getHeatLevelTextComponent", at = @At("HEAD"), cancellable = true)
-    public void getHeatLevelTextComponentMixin(CallbackInfoReturnable<MutableComponent> cir) {
-        int boilerLevel = Math.min(activeHeat, Math.min(maxHeatForWater, maxHeatForSize));
-
-        cir.setReturnValue(isPassive() ? Lang.translateDirect("boiler.passive")
-                : (boilerLevel == 0 ? Lang.translateDirect("boiler.idle")
-                : boilerLevel == Config.SEETHING_BURNER.get()*9 ? Lang.translateDirect("boiler.max_lvl")
-                : Lang.translateDirect("boiler.lvl", String.valueOf(boilerLevel))));
-    }
-
-    @Inject(method = "barComponent", at = @At("HEAD"), cancellable = true)
-    private void barComponentMixin(int level, CallbackInfoReturnable<MutableComponent> cir) {
-        cir.setReturnValue(Components.empty()
-                .append(bars(Math.max(0, minValue - 1), ChatFormatting.DARK_GREEN))
-                .append(bars(minValue > 0 ? 1 : 0, ChatFormatting.GREEN))
-                .append(bars(Math.max(0, level - minValue), ChatFormatting.DARK_GREEN))
-                .append(bars(Math.max(0, maxValue - level), ChatFormatting.DARK_RED))
-                .append(bars(Math.max(0, Math.min(Config.SEETHING_BURNER.get()*9 - maxValue, ((maxValue / 5 + 1) * 5) - maxValue)),
-                        ChatFormatting.DARK_GRAY)));
-
+    @ModifyConstant(method = "getMaxHeatLevelForWaterSupply", constant = @Constant(intValue = 810)) // Fabric needs 81x values
+    private int lazy_engines$replaceWaterSupplyPerLevel(int constant) {
+        return Config.WATER_REQUIRED.get();
     }
 
     @Inject(method = "getEngineEfficiency", at = @At("HEAD"), cancellable = true)
-    public void getEngineEfficiencyMixin(int boilerSize, CallbackInfoReturnable<Float> cir) {
+    public void lazy_engines$getEngineEfficiencyMixin(int boilerSize, CallbackInfoReturnable<Float> cir) {
+        double attachedPower = attachedEngines * Config.ENGINE_POWER.get();
         if (isPassive(boilerSize)) {
-            cir.setReturnValue(Config.PASSIVE_EFFICIENCY.get().floatValue() / attachedEngines);
-            return;
+            cir.setReturnValue((float)(Config.PASSIVE_EFFICIENCY.get() / attachedPower));
+            cir.cancel(); // Thanks LiukRast for the correction!
+            return; // I have no words - this return was here to stop the mixin itself from continuing.
         }
         if (activeHeat == 0) {
             cir.setReturnValue(0.f);
+            cir.cancel();
             return;
         }
-        int actualHeat = getActualHeat(boilerSize);
-        cir.setReturnValue(attachedEngines <= actualHeat ? 1 : (float) actualHeat / attachedEngines);
-        return; //Necessary for the function to stop the rest
+        double actualHeat = getActualHeat(boilerSize);
+        cir.setReturnValue(attachedPower <= actualHeat ? 1 : (float) (actualHeat / attachedPower));
+        cir.cancel();
+    }
+
+    @ModifyVariable(method = "addToGoggleTooltip", at = @At("STORE"), ordinal = 0)
+    private double lazy_engines$correctTotalSU(double totalSU, List<Component> tooltip, boolean isPlayerSneaking, int boilerSize) {
+        int boilerLevel = Math.min(activeHeat, Math.min(maxHeatForWater, maxHeatForSize));
+        return getEngineEfficiency(boilerSize) * 16 * Math.max(boilerLevel, attachedEngines * Config.ENGINE_POWER.get())
+                * BlockStressValues.getCapacity(AllBlocks.STEAM_ENGINE.get());
     }
 
     @Shadow
-    public int getMaxHeatLevelForWaterSupply() {
-        return 0;
-    }
-    @Shadow
-    public int getMaxHeatLevelForBoilerSize(int boilerSize) {
-        return 0;
-    }
-    @Shadow
-    public boolean isPassive() {
-        return true;
+    public float getEngineEfficiency(int boilerSize) {
+        throw new MixinException("Mixin application failed");
     }
     @Shadow
     public boolean isPassive(int boilerSize) {
-        return true;
-    }
-    @Shadow
-    private MutableComponent bars(int level, ChatFormatting format) {
-        return Components.empty();
+        throw new MixinException("Mixin application failed");
     }
     @Shadow
     private int getActualHeat(int boilerSize) {
-        return 0;
+        throw new MixinException("Mixin application failed");
     }
 
-    @Shadow public double waterSupply;
-    @Final @Shadow private static int waterSupplyPerLevel;
     @Shadow public int activeHeat;
     @Shadow private int maxHeatForWater;
     @Shadow private int maxHeatForSize;
-    @Shadow private int minValue;
-    @Shadow private int maxValue;
     @Shadow public int attachedEngines;
 }

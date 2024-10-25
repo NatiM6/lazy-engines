@@ -1,39 +1,32 @@
 package com.natim6.lazyengines.mixin;
 
 import com.natim6.lazyengines.Config;
-import com.simibubi.create.AllTags;
 import com.simibubi.create.content.fluids.tank.BoilerHeaters;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
-import com.simibubi.create.foundation.utility.BlockHelper;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = BoilerHeaters.class, remap = false)
 public class BoilerHeatersMixin {
-    @Inject(method = "registerDefaults", at = @At("HEAD"), cancellable = true)
-    private static void registerDefaultsMixin(CallbackInfo ci) {
-        registerHeater(com.simibubi.create.AllBlocks.BLAZE_BURNER.get(), (level, pos, state) -> {
-            HeatLevel value = state.getValue(BlazeBurnerBlock.HEAT_LEVEL);
-            if (value == HeatLevel.SEETHING) return Config.SEETHING_BURNER.get();
-            if (value.isAtLeast(HeatLevel.FADING)) return Config.KINDLED_BURNER.get();
-            return Config.PASSIVE_BURNER.get().value();
-        });
 
-        registerHeaterProvider((level, pos, state) -> {
-            if (AllTags.AllBlockTags.PASSIVE_BOILER_HEATERS.matches(state) && BlockHelper.isNotUnheated(state)) {
-                return (level1, pos1, state1) -> Config.NON_BURNER.get().value();
-            }
-            return null;
-        });
-
-        ci.cancel();
+    @Inject(method = "lambda$registerDefaults$0", at = @At("HEAD"), cancellable = true)
+    private static void lazy_engines$registerHeater(Level level, BlockPos pos, BlockState state, CallbackInfoReturnable<Float> cir) {
+        HeatLevel value = state.getValue(BlazeBurnerBlock.HEAT_LEVEL);
+        if (value == HeatLevel.SEETHING) cir.setReturnValue((float)Config.SEETHING_BURNER.get());
+        else if (value.isAtLeast(HeatLevel.FADING)) cir.setReturnValue((float)Config.KINDLED_BURNER.get());
+        else cir.setReturnValue((float)Config.PASSIVE_BURNER.get().value());
+        cir.cancel();
     }
 
-    @Shadow public static void registerHeater(Block block, BoilerHeaters.Heater heater) {}
-    @Shadow public static void registerHeaterProvider(BoilerHeaters.HeaterProvider provider) {}
+    @Inject(method = "lambda$registerDefaults$1", at = @At("RETURN"), cancellable = true)
+    private static void lazy_engines$registerHeaterProvider$return(Level level, BlockPos pos, BlockState state, CallbackInfoReturnable<BoilerHeaters.Heater> cir) {
+        if(cir.getReturnValue() != null)
+            cir.setReturnValue((a,b,c) -> Config.NON_BURNER.get().value());
+    }
 }
