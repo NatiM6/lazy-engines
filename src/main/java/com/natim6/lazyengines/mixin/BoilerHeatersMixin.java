@@ -30,7 +30,7 @@ public class BoilerHeatersMixin {
         cir.cancel();
     }
 
-    @Inject(method = "passive", at = @At("RETURN"))
+    @Inject(method = "passive", at = @At("RETURN"), cancellable = true)
     private static void lazyengines$passive$return(Level level, BlockPos pos, BlockState state, CallbackInfoReturnable<Integer> cir) {
         if(cir.getReturnValue() == BoilerHeater.PASSIVE_HEAT)
             cir.setReturnValue(Config.NON_BURNER.get().value());
