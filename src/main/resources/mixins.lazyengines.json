@@ -5,6 +5,7 @@
   "package": "com.natim6.lazyengines.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "BoilerDataMixin",
     "BoilerHeatersMixin"
   ],
   "injectors": {
