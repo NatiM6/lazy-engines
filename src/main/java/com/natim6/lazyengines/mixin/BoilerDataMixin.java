@@ -21,7 +21,7 @@ public class BoilerDataMixin {
         return Config.TANKS_PER_HEAT.get();
     }
 
-    @ModifyConstant(method = {"getMaxHeatLevelForWaterSupply", "getHeatLevelTextComponent", "barComponent", "tick"}, constant = @Constant(intValue = 18))
+    @ModifyConstant(method = {"getMaxHeatLevelForBoilerSize", "getMaxHeatLevelForWaterSupply", "getHeatLevelTextComponent", "barComponent", "tick"}, constant = @Constant(intValue = 18))
     private int lazy_engines$replace18Constant(int constant) {
         return Config.getMaxLevel();
     }
