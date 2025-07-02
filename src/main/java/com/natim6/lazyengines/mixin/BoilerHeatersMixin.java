@@ -24,7 +24,7 @@ public class BoilerHeatersMixin {
         cir.cancel();
     }
 
-    @Inject(method = "lambda$registerDefaults$1", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "lambda$registerDefaults$2", at = @At("RETURN"), cancellable = true)
     private static void lazy_engines$registerHeaterProvider$return(Level level, BlockPos pos, BlockState state, CallbackInfoReturnable<BoilerHeaters.Heater> cir) {
         if(cir.getReturnValue() != null)
             cir.setReturnValue((a,b,c) -> Config.NON_BURNER.get().value());

@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.6-SNAPSHOT'
+	id 'fabric-loom' version '1.8.13'
 	id 'maven-publish'
 }
 
@@ -16,7 +16,7 @@ repositories {
 	maven { url = 'https://maven.parchmentmc.org' } //Parchment
 	maven { url = "https://mvn.devos.one/snapshots/" } //Create
 	maven { url = "https://mvn.devos.one/releases/" } //Porting Lib?
-	maven { url = "https://maven.tterrag.com/" } //Flywheel
+	maven { url = "https://modmaven.dev" } //Flywheel
 	maven { url = "https://jitpack.io" } //Mixin Extras - no clue what that is
 	maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } //Reach Attr
 	maven { url = "https://cursemaven.com" } //Forge API port
