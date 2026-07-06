@@ -1,4 +1,4 @@
-modLoader="neoforge"
+modLoader="javafml"
 loaderVersion="${loader_version_range}"
 license="${mod_license}"
 
@@ -11,7 +11,7 @@ license="${mod_license}"
     description='''${mod_description}'''
 
 [[dependencies.${mod_id}]] #optional
-    modId="neoforge"
+    modId="forge"
     mandatory=true
     versionRange="${forge_version_range}"
     ordering="NONE"

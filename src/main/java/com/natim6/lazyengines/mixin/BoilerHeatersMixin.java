@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = BoilerHeaters.class)
 public class BoilerHeatersMixin {
-    @Inject(method = "blazeBurner", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "blazeBurner", at = @At("HEAD"), cancellable = true, remap = false)
     private static void lazyengines$blazeBurner$head(Level level, BlockPos pos, BlockState state, CallbackInfoReturnable<Integer> cir) {
         BlazeBurnerBlock.HeatLevel value = state.getValue(BlazeBurnerBlock.HEAT_LEVEL);
 
@@ -30,7 +30,7 @@ public class BoilerHeatersMixin {
         cir.cancel();
     }
 
-    @Inject(method = "passive", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "passive", at = @At("RETURN"), cancellable = true, remap = false)
     private static void lazyengines$passive$return(Level level, BlockPos pos, BlockState state, CallbackInfoReturnable<Integer> cir) {
         if(cir.getReturnValue() == BoilerHeater.PASSIVE_HEAT)
             cir.setReturnValue(Config.NON_BURNER.get().value());
